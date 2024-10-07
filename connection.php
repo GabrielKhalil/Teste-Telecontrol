@@ -15,4 +15,3 @@ try {
 } catch (Exception $exception) {
     die("Erro ao se conectar com o banco de dados: " . $exception->getMessage());
 }
-?>
