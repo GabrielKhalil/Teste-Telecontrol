@@ -1,6 +1,13 @@
 <?php
 include("../connection.php");
 
+header('Content-Type: application/json');
+
+$response = [
+    'success' => false,
+    'message' => ''
+];
+
 $descricao = isset($_POST['descricao']) ? trim($_POST['descricao']) : '';
 $codigo = isset($_POST['codigo']) ? trim($_POST['codigo']) : '';
 $status = isset($_POST['status']) ? trim($_POST['status']) : '';
@@ -12,28 +19,19 @@ $sql = "INSERT INTO produtos (descricao, codigo, status, meses_garantia) VALUES 
 if ($stmt = $connection->prepare($sql)) {
     $stmt->bind_param('sssi', $descricao, $codigo, $status, $meses_garantia);
 
-    if ($stmt->execute()) {
-        echo
-        "<script>
-            alert('Produto cadastrado com sucesso!');
-            window.location.href = '../index.html';
-        </script>";
-    } else {
-        echo "<script>
-            alert('Erro ao cadastrar produto: " . $stmt->error . "');
-        </script>";
+    try {
+        if ($stmt->execute()) {
+            $response['success'] = true;
+            $response['message'] = 'Produto cadastrado com sucesso!';
+        }
+    } catch (mysqli_sql_exception $e) {
+        $response['message'] = 'Erro ao cadastrar produto: ' . $e->getMessage();
     }
-
     $stmt->close();
 } else {
-    echo "<script>
-        alert('Erro ao fazer cadastro no banco: " . $connection->error . "');
-    </script>";
+    $response['message'] = 'Erro ao preparar a consulta: ' . $connection->error;
 }
 
-$connection->close();
-?>
+echo json_encode($response);
 
-<!-- adicionar try e catch -->
-<!-- buscar sql injection -->
-<!-- alterar nome do arquivo ProdutoService -->
+$connection->close();
