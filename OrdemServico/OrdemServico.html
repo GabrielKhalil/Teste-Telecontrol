@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Ordem de Serviço</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
     <style>
         body {
             background-color: #e9ecef;
             font-family: 'Roboto', sans-serif;
         }
-
         .card {
             border: none;
             border-radius: 15px;
@@ -22,14 +20,12 @@
             flex-direction: column;
             gap: 15px;
         }
-
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
             color: #495057;
             margin-bottom: 40px;
         }
-
         .form-label {
             color: #495057;
             font-weight: bold;
@@ -44,11 +40,6 @@
             <h1 class="text-center">Cadastro Ordem de Serviço</h1>
 
             <div>
-                <label class="form-label">Número Ordem: </label>
-                <input placeholder="Informe o número da Ordem" type="text" class="form-control" id="numero_ordem" name="numero_ordem" required>
-            </div>
-
-            <div>
                 <label class="form-label">ID do Consumidor: </label>
                 <input type="hidden" id="id_cliente" name="id_cliente">
                 <input type="text" class="form-control" id="id_cliente_display" value="" disabled>
@@ -56,26 +47,26 @@
 
             <div>
                 <label class="form-label">CPF do Consumidor: </label>
-                <input placeholder="Informe o CPF do consumidor" type="text" class="form-control" id="cpf" name="cpf" list="cpfList" onchange="completeNomeandID()" required>
+                <input placeholder="Informe o CPF do consumidor" type="text" class="form-control" id="cpf" name="cpf" list="cpfList" onchange="completeNomeandID()">
                 <datalist id="cpfList"></datalist>
             </div>
 
             <div>
                 <label class="form-label">Nome do Consumidor: </label>
-                <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="nome" name="nome" list="nomeList" onchange="completeCPFandID()" required>
+                <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="nome" name="nome" list="nomeList" onchange="completeCPFandID()">
                 <datalist id="nomeList"></datalist>
             </div>
             
             <div>
                 <label class="form-label">Produto: </label>
-                <select id="id_produto" name="id_produto" class="form-select" aria-label="Informe o produto" required>
+                <select id="id_produto" name="id_produto" class="form-select" aria-label="Informe o produto">
                     <option selected disabled value="">Selecione...</option>
                 </select>
             </div>
 
             <div>
                 <label class="form-label">Data Abertura: </label>
-                <input placeholder="Informe a data de abertura" type="text" class="form-control" id="data_abertura" name="data_abertura" required oninput="mascaraData(this)">
+                <input placeholder="Informe a data de abertura" type="text" class="form-control" id="data_abertura" name="data_abertura" oninput="mascaraData(this)">
             </div>
 
             <button type="submit" class="btn btn-primary">Cadastrar Ordem</button>
@@ -111,7 +102,6 @@
                 })
                 .catch(error => console.error("Erro ao carregar os produtos:", error));
         }
-        window.onload = listProdutos;
 
         // Função para adicionar clientes nas datalists
         function listCPFAndNome() {
@@ -142,7 +132,18 @@
                 .catch(error => console.error("Erro ao carregar os clientes:", error));
         }
 
-        document.addEventListener("DOMContentLoaded", listCPFAndNome);
+        // Função de inicialização
+        window.onload = function() {
+            listProdutos();
+            listCPFAndNome();
+            
+            let cpfInput = document.getElementById("cpf");
+            cpfInput.addEventListener("blur", function () {
+                if (!verificaCPF(cpfInput.value)) {
+                    showToast('O CPF informado não é válido! Tente novamente.');
+                }
+            });
+        };
 
         function completeCPFandID() {
             const nomeInput = document.getElementById('nome');
@@ -185,6 +186,85 @@
             input.value = value;
         }
 
+        function showToast(message) {
+            const toastMessage = document.getElementById('toastMessage');
+            const toast = document.getElementById('toast');
+
+            toastMessage.textContent = message;
+            const bootstrapToast = new bootstrap.Toast(toast);
+            bootstrapToast.show();
+
+            toast.style.display = 'block';
+        }
+
+        function verificaCPF(cpf) {
+            cpf = cpf.replace(/[^\d]/g, '');
+
+            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+                return false;
+            }
+
+            let soma = 0;
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(cpf.charAt(i)) * (10 - i);
+            }
+            let primeiroDigito = (soma * 10) % 11;
+            if (primeiroDigito === 10) primeiroDigito = 0;
+
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(cpf.charAt(i)) * (11 - i);
+            }
+            let segundoDigito = (soma * 10) % 11;
+            if (segundoDigito === 10) segundoDigito = 0;
+
+            return primeiroDigito === parseInt(cpf.charAt(9)) && segundoDigito === parseInt(cpf.charAt(10));
+        }
+
+        function verificaCamposNulos(cpf, nome, id_produto, data_abertura) {
+            if (cpf.trim() === '' || nome.trim() === '' || id_produto.trim() === '' || data_abertura.trim() === '') {
+                return false;
+            }
+            return true;
+        }
+
+        function validarFormulario(event) {
+            event.preventDefault();
+            const cpf = document.getElementById('cpf').value;
+            const nome = document.getElementById('nome').value;
+            const id_produto = document.getElementById('id_produto').value;
+            const data_abertura = document.getElementById('data_abertura').value;
+
+            if (!verificaCPF(cpf)) {
+                showToast('O CPF informado não é válido! Tente novamente.');
+                return false;
+            }
+
+            if (!verificaCamposNulos(cpf, nome, id_produto, data_abertura)) {
+                showToast('Todos os campos devem ser preenchidos! Tente novamente.');
+                return false;
+            }
+
+            const formData = new FormData(document.getElementById('formOrdem'));
+            fetch('OrdemServicoService.php', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    showToast(data.message);
+                } else {
+                    showToast(data.message);
+                    setTimeout(() => {
+                        document.getElementById('formOrdem').reset();
+                    }, 3000);
+                }
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        document.getElementById('formOrdem').addEventListener('submit', validarFormulario);
     </script>
 </body>
 </html>

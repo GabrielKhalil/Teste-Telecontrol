@@ -2,14 +2,21 @@
 
 include("../connection.php");
 
-$numero_ordem = isset($_POST['numero_ordem']) ? trim($_POST['numero_ordem']) : '';
+header('Content-Type: application/json');
+
+$response = [
+    'success' => false,
+    'message' => ''
+];
+
 $cpf = isset($_POST['cpf']) ? trim($_POST['cpf']) : '';
 $nome = isset($_POST['nome']) ? trim($_POST['nome']) : '';
 $id_produto = isset($_POST['id_produto']) ? trim($_POST['id_produto']) : '';
 $data_abertura = isset($_POST['data_abertura']) ? trim($_POST['data_abertura']) : '';
 $id_cliente = isset($_POST['id_cliente']) ? trim($_POST['id_cliente']) : '';
 
-// Formatar a data
+
+// Formatar data
 if ($data_abertura) {
     $data = DateTime::createFromFormat('d/m/Y', $data_abertura);
     if ($data) {
@@ -19,7 +26,7 @@ if ($data_abertura) {
     }
 }
 
-if ($id_cliente === null || $id_cliente === '') {
+if (empty($id_cliente)) {
     $sql = "INSERT INTO clientes (nome, cpf) VALUES (?, ?)";
 
     if ($stmt = $connection->prepare($sql)) {
@@ -28,44 +35,35 @@ if ($id_cliente === null || $id_cliente === '') {
         try {
             if ($stmt->execute()) {
                 $id_cliente = $connection->insert_id;
+                $response['success'] = true;
+                $response['message'] = 'Cliente cadastrado com sucesso.';
             }
         } catch (mysqli_sql_exception $e) {
-            echo
-            "<script>
-                alert('Erro ao cadastrar cliente: " . addslashes($e->getMessage()) . "');
-                window.location.href = '../index.html';
-                </script>";
-            $stmt->close();
-            $connection->close();
-            exit;
+            $response['message'] = 'Erro ao cadastrar cliente: ' . $e->getMessage();
         }
 
         $stmt->close();
     }
 }
 
-$sql = "INSERT INTO ordens_servico (numero_ordem, data_abertura, id_cliente, id_produto) VALUES (?, ?, ?, ?)";
+$sql = "INSERT INTO ordens_servico (data_abertura, id_cliente, id_produto) VALUES (?, ?, ?)";
 
 if ($stmt = $connection->prepare($sql)) {
-    $stmt->bind_param('ssii', $numero_ordem, $data_abertura, $id_cliente, $id_produto);
+    $stmt->bind_param('ssi', $data_abertura, $id_cliente, $id_produto);
 
     try {
         if ($stmt->execute()) {
-            echo
-            "<script>
-                alert('Ordem de serviço cadastrada com sucesso!');
-                window.location.href = '../index.html';
-            </script>";
+            $response['success'] = true;
+            $response['message'] = 'Ordem de serviço cadastrada com sucesso!';
         }
     } catch (mysqli_sql_exception $e) {
-        echo
-        "<script>
-            alert('Erro ao cadastrar ordem de serviço: " . addslashes($e->getMessage()) . "');
-            window.location.href = '../index.html';
-        </script>";
+        $response['message'] = 'Erro ao cadastrar ordem de serviço: ' . $e->getMessage();
     }
 
     $stmt->close();
 }
 
+echo json_encode($response);
+
 $connection->close();
+?>
