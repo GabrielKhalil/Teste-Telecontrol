@@ -1,96 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastrar Ordem de Serviço</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Ordem de Serviço</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
-        <style>
-            body {
-                background-color: #e9ecef;
-                font-family: 'Roboto', sans-serif;
-            }
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 40px;
+        }
+
+        .form-label {
+            color: "495057";
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <form id="formOrdem" action="OrdemServicoService.php" method="post" class="card">
+            <h1 class="text-center">Cadastro Ordem de Serviço</h1>
+
+            <div>
+                <label class="form-label">Número Ordem: </label>
+                <input placeholder="Informe o número da Ordem" type="text" class="form-control" id="numero_ordem" name="numero_ordem">
+            </div>
+
+            <div>
+                <label class="form-label">ID do Consumidor: </label>
+                <input disabled placeholder="Informe o id do consumidor" type="text" class="form-control" id="id_cliente" name="id_cliente">
+            </div>
+
+            <div>
+                <label class="form-label">CPF do Consumidor: </label>
+                <input placeholder="Informe o CPF do consumidor" type="text" class="form-control" id="cpf" name="cpf">
+            </div>
+
+            <div>
+                <label class="form-label">Nome do Consumidor: </label>
+                <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="nome" name="nome" list="nomeList" onchange="completeCPFandID()">
+                <datalist id="nomeList"></datalist>
+            </div>
             
-            .card {
-                border: none;
-                border-radius: 15px;
-                padding: 30px;
-                background-color: #fff;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-        
-            h1 {
-                font-size: 2.5rem;
-                font-weight: 700;
-                color: #495057;
-                margin-bottom: 40px;
-            }
-        
-            .form-label{
-                color: "495057";
-                font-weight: bold;
-                font-size: 14px;
-            }
-        
-        </style>
-    
-    </head>
+            <div>
+                <label class="form-label">Produto: </label>
+                <select id="id_produto" name="id_produto" class="form-select" aria-label="Informe o produto">
+                    <option selected disabled value="">Selecione...</option>
+                </select>
+            </div>
 
+            <div>
+                <label class="form-label">Data Abertura: </label>
+                <input placeholder="Informe a data de abertura" type="text" class="form-control" id="data_abertura" name="data_abertura">
+            </div>
 
-    <body>
-        <div class="container mt-4">
-            <form id="formOrdem" action="OrdemServicoService.php" method="post" class="card">
-                <h1 class="text-center">Cadastro Ordem de Serviço</h1>
+            <button type="button" class="btn btn-primary" id="submitBtn">Cadastrar Ordem</button>
+        </form>
 
-                <div>
-                    <label class="form-label">Número Ordem: </label>
-                    <input placeholder="Informe o número da Ordem" type="text" class="form-control" id="numero_ordem" name="numero_ordem">
-                </div>
-
-                <div>
-                    <label class="form-label">CPF do Consumidor: </label>
-                    <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="cpf" name="cpf">
-                </div>
-
-
-                <div>
-                    <label class="form-label">Nome do Consumidor: </label>
-                    <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="nome" name="nome">
-                </div>
-
-                <div>
-                    <label class="form-label">Produto</label>
-                    <select id="id_produto" name="id_produto" class="form-select" aria-label="Informe o produto">
-                        <option selected disabled value="">Selecione...</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
-                      </select>
-                </div>
-
-                <div>
-                    <label class="form-label">Data Abertura: </label>
-                    <input placeholder="Informea a data de abertura" type="text" class="form-control" id="data_abertura" name="data_abertura">
-                </div>
-                <button type="button" class="btn btn-primary">Cadastrar Ordem</button>
-            </form>
-
-
-            <div id="toastContainer" class="position-fixed top-0 end-0 p-3">
-                <div id="toast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;">
-                    <div class="d-flex">
-                        <div class="toast-body" id="toastMessage"></div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
+        <div id="toastContainer" class="position-fixed top-0 end-0 p-3">
+            <div id="toast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMessage"></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    </body>
+    <script>
+        // Função para listar os produtos
+        function listProdutos() {
+            fetch('../Produtos/getProdutos.php')
+                .then(response => response.json())
+                .then(data => {
+                    const selectElement = document.getElementById("id_produto");
+                    
+                    selectElement.innerHTML = '<option selected disabled value="">Selecione...</option>';
+                    
+                    data.forEach(produto => {
+                        const option = document.createElement("option");
+                        option.value = produto.id_produto;
+                        option.textContent = produto.descricao;
+                        selectElement.appendChild(option);
+                    });
+                })
+                .catch(error => {console.error("Erro ao carregar os produtos:", error);});
+        }
+        window.onload = listProdutos;
+
+        // Função para listar os clientes e popular o datalist
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("../Cliente/getClientes.php")
+                .then(response => response.json())
+                .then(data => {
+                    const nomeList = document.getElementById("nomeList");
+                    if (data.length > 0) {
+                        data.forEach(cliente => {
+                            const option = document.createElement("option");
+                            option.value = cliente.nome;
+                            option.dataset.id_cliente = cliente.id_cliente;
+                            option.dataset.cpf = cliente.cpf; 
+                            nomeList.appendChild(option);
+                        });
+                    } else {
+                        console.log("Nenhum cliente encontrado.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar os clientes:", error);
+                });
+        });
+
+        function completeCPFandID() {
+            const nomeInput = document.getElementById('nome');
+            const id_clienteInput = document.getElementById('id_cliente');
+            const cpfInput = document.getElementById('cpf');
+            const nomeList = document.getElementById('nomeList');
+
+            const selectedOption = Array.from(nomeList.options).find(option => option.value === nomeInput.value);
+            
+            if (selectedOption) {
+                id_clienteInput.value = selectedOption.dataset.id_cliente;
+                cpfInput.value = selectedOption.dataset.cpf; 
+            } else {
+                id_clienteInput.value = '';
+                cpfInput.value = '';
+            }
+        }
+    </script>
+</body>
 </html>

@@ -9,4 +9,5 @@ $id_produto = isset($_POST['id_produto']) ? trim($_POST['id_produto']) : '';
 $data_abertura = isset($_POST['data_abertura']) ? trim($_POST['data_abertura']) : '';
 $id_cliente = isset($_POST['id_cliente']) ? trim($_POST['id_cliente']) : '';
 
-$sql = "SELECT * FROM produtos";
+
+?>
