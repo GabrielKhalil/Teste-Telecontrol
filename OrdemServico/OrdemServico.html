@@ -31,7 +31,7 @@
         }
 
         .form-label {
-            color: "495057";
+            color: #495057;
             font-weight: bold;
             font-size: 14px;
         }
@@ -45,38 +45,40 @@
 
             <div>
                 <label class="form-label">Número Ordem: </label>
-                <input placeholder="Informe o número da Ordem" type="text" class="form-control" id="numero_ordem" name="numero_ordem">
+                <input placeholder="Informe o número da Ordem" type="text" class="form-control" id="numero_ordem" name="numero_ordem" required>
             </div>
 
             <div>
                 <label class="form-label">ID do Consumidor: </label>
-                <input disabled placeholder="Informe o id do consumidor" type="text" class="form-control" id="id_cliente" name="id_cliente">
+                <input type="hidden" id="id_cliente" name="id_cliente">
+                <input type="text" class="form-control" id="id_cliente_display" value="" disabled>
             </div>
 
             <div>
                 <label class="form-label">CPF do Consumidor: </label>
-                <input placeholder="Informe o CPF do consumidor" type="text" class="form-control" id="cpf" name="cpf">
+                <input placeholder="Informe o CPF do consumidor" type="text" class="form-control" id="cpf" name="cpf" list="cpfList" onchange="completeNomeandID()" required>
+                <datalist id="cpfList"></datalist>
             </div>
 
             <div>
                 <label class="form-label">Nome do Consumidor: </label>
-                <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="nome" name="nome" list="nomeList" onchange="completeCPFandID()">
+                <input placeholder="Informe o nome do consumidor" type="text" class="form-control" id="nome" name="nome" list="nomeList" onchange="completeCPFandID()" required>
                 <datalist id="nomeList"></datalist>
             </div>
             
             <div>
                 <label class="form-label">Produto: </label>
-                <select id="id_produto" name="id_produto" class="form-select" aria-label="Informe o produto">
+                <select id="id_produto" name="id_produto" class="form-select" aria-label="Informe o produto" required>
                     <option selected disabled value="">Selecione...</option>
                 </select>
             </div>
 
             <div>
                 <label class="form-label">Data Abertura: </label>
-                <input placeholder="Informe a data de abertura" type="text" class="form-control" id="data_abertura" name="data_abertura">
+                <input placeholder="Informe a data de abertura" type="text" class="form-control" id="data_abertura" name="data_abertura" required oninput="mascaraData(this)">
             </div>
 
-            <button type="button" class="btn btn-primary" id="submitBtn">Cadastrar Ordem</button>
+            <button type="submit" class="btn btn-primary">Cadastrar Ordem</button>
         </form>
 
         <div id="toastContainer" class="position-fixed top-0 end-0 p-3">
@@ -98,7 +100,6 @@
                 .then(response => response.json())
                 .then(data => {
                     const selectElement = document.getElementById("id_produto");
-                    
                     selectElement.innerHTML = '<option selected disabled value="">Selecione...</option>';
                     
                     data.forEach(produto => {
@@ -108,49 +109,82 @@
                         selectElement.appendChild(option);
                     });
                 })
-                .catch(error => {console.error("Erro ao carregar os produtos:", error);});
+                .catch(error => console.error("Erro ao carregar os produtos:", error));
         }
         window.onload = listProdutos;
 
-        // Função para listar os clientes e popular o datalist
-        document.addEventListener("DOMContentLoaded", function() {
+        // Função para adicionar clientes nas datalists
+        function listCPFAndNome() {
             fetch("../Cliente/getClientes.php")
                 .then(response => response.json())
                 .then(data => {
                     const nomeList = document.getElementById("nomeList");
+                    const cpfList = document.getElementById("cpfList");
+
                     if (data.length > 0) {
                         data.forEach(cliente => {
-                            const option = document.createElement("option");
-                            option.value = cliente.nome;
-                            option.dataset.id_cliente = cliente.id_cliente;
-                            option.dataset.cpf = cliente.cpf; 
-                            nomeList.appendChild(option);
+                            const nomeOption = document.createElement("option");
+                            nomeOption.value = cliente.nome;
+                            nomeOption.dataset.id_cliente = cliente.id_cliente;
+                            nomeOption.dataset.cpf = cliente.cpf; 
+                            nomeList.appendChild(nomeOption);
+
+                            const cpfOption = document.createElement("option");
+                            cpfOption.value = cliente.cpf;
+                            cpfOption.dataset.id_cliente = cliente.id_cliente;
+                            cpfOption.dataset.nome = cliente.nome; 
+                            cpfList.appendChild(cpfOption);
                         });
                     } else {
                         console.log("Nenhum cliente encontrado.");
                     }
                 })
-                .catch(error => {
-                    console.error("Erro ao carregar os clientes:", error);
-                });
-        });
+                .catch(error => console.error("Erro ao carregar os clientes:", error));
+        }
+
+        document.addEventListener("DOMContentLoaded", listCPFAndNome);
 
         function completeCPFandID() {
             const nomeInput = document.getElementById('nome');
             const id_clienteInput = document.getElementById('id_cliente');
+            const id_clienteDisplay = document.getElementById('id_cliente_display');
             const cpfInput = document.getElementById('cpf');
             const nomeList = document.getElementById('nomeList');
 
             const selectedOption = Array.from(nomeList.options).find(option => option.value === nomeInput.value);
-            
             if (selectedOption) {
                 id_clienteInput.value = selectedOption.dataset.id_cliente;
+                id_clienteDisplay.value = selectedOption.dataset.id_cliente;
                 cpfInput.value = selectedOption.dataset.cpf; 
             } else {
-                id_clienteInput.value = '';
-                cpfInput.value = '';
+                id_clienteDisplay.value = '';
             }
         }
+
+        function completeNomeandID() {
+            const nomeInput = document.getElementById('nome');
+            const id_clienteInput = document.getElementById('id_cliente');
+            const id_clienteDisplay = document.getElementById('id_cliente_display');
+            const cpfInput = document.getElementById('cpf');
+            const cpfList = document.getElementById('cpfList');
+
+            const selectedOption = Array.from(cpfList.options).find(option => option.value === cpfInput.value);
+            if (selectedOption) {
+                id_clienteInput.value = selectedOption.dataset.id_cliente;
+                id_clienteDisplay.value = selectedOption.dataset.id_cliente;
+                nomeInput.value = selectedOption.dataset.nome; 
+            } else {
+                id_clienteDisplay.value = '';
+            }
+        }
+
+        function mascaraData(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+            if (value.length > 2) value = value.slice(0, 2) + '/' + value.slice(2);
+            if (value.length > 5) value = value.slice(0, 5) + '/' + value.slice(5);
+            input.value = value;
+        }
+
     </script>
 </body>
 </html>
