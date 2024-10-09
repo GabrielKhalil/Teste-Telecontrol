@@ -29,7 +29,7 @@ if ($stmt = $connection->prepare($sql)) {
     }
     $stmt->close();
 } else {
-    $response['message'] = 'Erro ao preparar a consulta: ' . $connection->error;
+    $response['message'] = 'Erro ao cadastrar: ' . $connection->error;
 }
 
 echo json_encode($response);
