@@ -112,8 +112,8 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-primary" style="flex: 1; margin-right: 10px;" onclick="validarFormulario()">Atualizar Produto</button>
-                <button type="button" class="btn btn-danger" style="flex: 1;" onclick="deletarProduto()">Deletar Produto</button>
+                <button type="button" class="btn btn-primary" style="flex: 1; margin-right: 10px;" onclick="validarFormulario()">Atualizar Cliente</button>
+                <button type="button" class="btn btn-danger" style="flex: 1;" onclick="deletarCliente()">Deletar Cliente</button>
             </div>
         </form>
 
@@ -230,7 +230,7 @@
             .catch(error => console.error('Erro:', error));
         }
 
-        function deletarProduto() {
+        function deletarCliente() {
             const id_cliente = document.getElementById('id_cliente').value;
 
             if (id_cliente == '' || id_cliente == null) {
